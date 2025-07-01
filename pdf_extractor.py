@@ -79,6 +79,18 @@ def index():
         if df.empty:
             return render_template_string(HTML_TEMPLATE, message="No tables found in PDF", message_type="error")
         
+
+        #Filter Data
+        mask = df.isin(['TAREA', 'TRABAJO','Tarea','Trabajo']) #return same df but with True only where these words are
+        result = mask.any(axis=1) #Tells me True if the row contains a True
+
+        if result.any():
+            row_idx = result.idxmax() #gives me the index of the row that has True (aka the max value)
+            col_idx = mask.loc[row_idx].idxmax() #gives me the index of the column that has True
+
+        df_cleaned = df.iloc[row_idx + 1:]
+        df_cleaned = df_cleaned.iloc[:, col_idx:col_idx + 3]
+
         # Process data - Structure tasks
         task_counter = 0
         subtask_counter = 0
