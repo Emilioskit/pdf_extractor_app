@@ -2,3 +2,4 @@ venv/
 dist/
 build/
 PDFTaskExtractor.spec
+.DS_Store
