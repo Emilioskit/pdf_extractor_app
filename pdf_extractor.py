@@ -1,4 +1,5 @@
-from flask import Flask, request, send_file, render_template_string
+from flask import Flask, request, send_file, render_template_string, after_this_request
+import shutil
 import pdfplumber
 import pandas as pd
 import os
@@ -82,8 +83,19 @@ def index():
             return render_template_string(HTML_TEMPLATE, message="Please upload a valid PDF file", message_type="error")
 
         temp_dir = tempfile.mkdtemp()
+        print(f"Temporary directory created at: {temp_dir}")
+
         pdf_path = os.path.join(temp_dir, secure_filename(file.filename))
         file.save(pdf_path)
+
+        @after_this_request
+        def cleanup(response):
+            try:
+                shutil.rmtree(temp_dir)
+            except Exception as e:
+                print(f"Error cleaning up temp directory: {e}")
+            return response
+
 
         # === Your PDF logic starts here ===
         df = pd.DataFrame()
